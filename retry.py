@@ -1,7 +1,7 @@
 from time import sleep
 import math
 
-def Retry(time:int=60):
+def Retry(time:int=10):
     '''
         Created by RenatoUb
         GNU GPLv3
@@ -12,22 +12,22 @@ def Retry(time:int=60):
         calculates the number of rounds(N) based on the inverse of the 
         Gauss sum.
     '''
-    # Calculate Delta
-    delta = 1-4*-1*time*2
-    # Rounds is the unknown that will be used in the sum of gauss
-    rounds = (-1+math.sqrt(delta))/2
-
-    def wrapper():
-        count = 1
-        while True:
-            try:
-                function()
-                break
-            except:
-                print(f'Sleep {count} second(s)')
-                sleep(count)
-            if count >= rounds:
-                raise Exception(f'The function took longer than the defined time({time} seconds)')
-            count += 1 
-    
-    return wrapper()
+    def decorator(function):
+        # Calculate Delta
+        delta = 1-4*-1*time*2
+        # Rounds is the unknown that will be used in the sum of gauss
+        rounds = (-1+math.sqrt(delta))/2
+        def wrapper(*args,**kwargs):
+            count=1
+            while count<=rounds:
+                try:
+                    print(f'Retry {count} in {str(__file__)}')
+                    func_response = function(*args,**kwargs)
+                    break
+                except:
+                    sleep(count)
+                    count+=1
+                    func_response=None
+            return func_response
+        return wrapper
+    return decorator
